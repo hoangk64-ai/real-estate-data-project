@@ -5,7 +5,7 @@ import sqlite3
 import time
 import random
 
-# --- CÁC HÀM HỖ TRỢ ---
+# Các Hàm Hỗ Trợ
 def clean_text(text):
     """Làm sạch khoảng trắng thừa trong chuỗi. Thay N/A thành Không có."""
     if text:
@@ -19,7 +19,7 @@ def get_fresh_scraper():
         browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True}
     )
 
-# --- HÀM CRAWL CHÍNH ---
+# Hàm Crawl Chính
 def crawl_batdongsan_pro(location_url, province_name, max_pages=10):
     data_collected = []
     print(f"\n[*] BẮT ĐẦU THU THẬP TẠI {province_name.upper()} (Tối đa {max_pages} trang)")
@@ -65,10 +65,10 @@ def crawl_batdongsan_pro(location_url, province_name, max_pages=10):
                         area = item.find('span', class_=lambda c: c and 'area' in str(c).lower())
                         location = item.find('div', class_=lambda c: c and 'location' in str(c).lower())
                         
-                        # 3. [FIX LỖI MÔ TẢ]: Quét siêu rộng mọi thẻ có chứa từ khóa mô tả
+                        # 3.Quét siêu rộng mọi thẻ có chứa từ khóa mô tả
                         desc = item.find(lambda tag: tag.name in ['div', 'span', 'p'] and tag.get('class') and any(keyword in str(c).lower() for c in tag.get('class') for keyword in ['description', 'summary']))
                         
-                        # 4. [FIX LỖI URL]: Lấy đúng link gốc của từng bài đăng
+                        # 4. Lấy đúng link gốc của từng bài đăng từ batdongsan.com.vn
                         link_tag = item.find('a', href=True)
                         specific_url = "https://batdongsan.com.vn" + link_tag['href'] if link_tag and link_tag['href'].startswith('/') else url
 
@@ -95,7 +95,7 @@ def crawl_batdongsan_pro(location_url, province_name, max_pages=10):
     return data_collected
 
 
-# --- HÀM XUẤT DATABASE SQLITE DUY NHẤT ---
+# Hàm Xuất Database SQLite Duy Nhất
 def export_to_sql_only(df, db_name="real_estate_danang_quangnam.db", table_name="bds_data"):
     """Lưu DataFrame trực tiếp vào file SQLite database."""
     try:
@@ -107,7 +107,7 @@ def export_to_sql_only(df, db_name="real_estate_danang_quangnam.db", table_name=
         print(f"  [!] Lỗi khi xuất ra SQL Database: {e}")
 
 
-# --- KHỐI LỆNH THỰC THI CHÍNH ---
+# Khối Lệnh Thực Thi Chính
 if __name__ == "__main__":
     url_dn = "https://batdongsan.com.vn/nha-dat-ban-da-nang"
     url_qn = "https://batdongsan.com.vn/nha-dat-ban-quang-nam"
@@ -136,4 +136,5 @@ if __name__ == "__main__":
         print("\n=> TẤT CẢ ĐÃ HOÀN TẤT TRỌN VẸN!")
         print("=" * 60)
     else:
+
         print("\nKhông có dữ liệu nào được thu thập.")
