@@ -1,0 +1,46 @@
+DATASET OVERVIEW
+(1152, 11)
+
+MISSING VALUES
+tinh_thanh      0
+tieu_de         0
+muc_gia         0
+dien_tich       0
+vi_tri          0
+mo_ta           0
+url             0
+price_text      0
+price           0
+area_m2         0
+price_per_m2    0
+dtype: int64
+
+DESCRIPTIVE STATISTICS
+              price      area_m2  price_per_m2
+count  1.152000e+03  1152.000000  1.152000e+03
+mean   1.296120e+10   162.249694  1.297219e+09
+std    2.360577e+10   137.612497  8.699731e+09
+min    3.000000e+08     1.000000  2.500000e+06
+25%    3.200000e+09    92.000000  2.815909e+07
+50%    5.395000e+09   120.000000  5.000000e+07
+75%    1.125000e+10   181.000000  8.625337e+07
+max    2.800000e+11   976.000000  1.142006e+11
+
+RECORDS BY PROVINCE
+tinh_thanh
+Quảng Nam    672
+Đà Nẵng      480
+Name: count, dtype: int64
+
+AVERAGE PRICE BY PROVINCE
+tinh_thanh
+Quảng Nam    1.367920e+10
+Đà Nẵng      1.195600e+10
+Name: price, dtype: float64
+
+AVERAGE PRICE PER M2 BY PROVINCE
+tinh_thanh
+Quảng Nam    1.305501e+09
+Đà Nẵng      1.285625e+09
+Name: price_per_m2, dtype: float64
+
