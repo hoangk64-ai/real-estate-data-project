@@ -30,25 +30,21 @@ print(df.isnull().sum())
 
 #3. data cleaning
 
-# remove duplicate rows
-df = df.drop_duplicates()
-print("After exact duplicates:", df.shape[0])
-
 # remove extra spaces
 df["tieu_de"] = df["tieu_de"].str.strip()
-df["vi_tri"] = df["vi_tri"].str.strip()
+df["vi_tri"] = df["vi_tri"].str.replace("·", "", regex=False).str.strip()
+
 
 #4. handle missing data
 
 # replace empty strings with NaN
 df = df.replace("", np.nan)
 
-#5. remove non numeric price
+#remove rows missing important values
+df = df.dropna(subset=["muc_gia", "dien_tich"])
 
-# remove rows with "giá thỏa thuận"
-df = df[~df["muc_gia"].str.contains("thỏa thuận", case=False, na=False)]
 
-#6. convert price to number
+#5. convert price to number
 
 df["price"] = df["muc_gia"].str.lower()
 
@@ -62,8 +58,6 @@ df["price"] = (
     .str.replace(",", ".", regex=False)
     .str.strip()
 )
-
-
 # convert to number safely
 df["price"] = pd.to_numeric(df["price"], errors="coerce")
 
@@ -73,9 +67,10 @@ df = df.dropna(subset=["price"])
 # convert units
 df.loc[df["muc_gia"].str.contains("tỷ", case=False, na=False), "price"] *= 1e9
 df.loc[df["muc_gia"].str.contains("triệu", case=False, na=False), "price"] *= 1e6
+
 print("After removing invalid price:", df.shape[0])
 
-#7. convert area to number
+#6. convert area to number
 
 df["area_m2"] = (
     df["dien_tich"]
@@ -92,17 +87,16 @@ df = df.dropna(subset=["area_m2"])
 
 print("After removing invalid area:", df.shape[0])
 
-#8. feature engineering
+#7. feature engineering
 
 df["price_per_m2"] = df["price"] / df["area_m2"]
 
-# remove duplicate rows
+#8. remove duplicate rows
 df["title_clean"] = (
     df["tieu_de"]
     .str.lower()
     .str.strip()
 )
-df["vi_tri"] = df["vi_tri"].str.replace("·", "", regex=False).str.strip()
 
 df = df.drop_duplicates(
     subset=["price", "area_m2", "vi_tri", "title_clean"],
@@ -111,16 +105,18 @@ df = df.drop_duplicates(
 
 print("After removing listing duplicates:", df.shape[0])
 
-#9. data normalization
+#9. data normalization (do NOT overwrite original numeric columns)
 
 scaler = MinMaxScaler()
 
 numeric_cols = ["price", "area_m2", "price_per_m2"]
 
-df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+norm_cols = ["price_norm", "area_norm", "ppm_norm"]
+
+df[norm_cols] = scaler.fit_transform(df[numeric_cols])
 
 
-#10. save clean data
+#9. save clean data
 
 
 clean_conn = sqlite3.connect(r"C:\Users\Huy Hoang\OneDrive\ProjectADY\cleaned_data.db")
