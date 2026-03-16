@@ -5,7 +5,7 @@ import sqlite3
 import time
 import random
 
-# CÁC HÀM HỖ TRỢ 
+# --- CÁC HÀM HỖ TRỢ ---
 def clean_text(text):
     """Làm sạch khoảng trắng thừa trong chuỗi. Thay N/A thành Không có."""
     if text:
@@ -19,8 +19,8 @@ def get_fresh_scraper():
         browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True}
     )
 
-# HÀM CRAWL CHÍNH 
-def crawl_batdongsan_pro(location_url, province_name, max_pages=10):
+# --- HÀM CRAWL CHÍNH ---
+def crawl_batdongsan_pro(location_url, province_name, max_pages=15):
     data_collected = []
     print(f"\n[*] BẮT ĐẦU THU THẬP TẠI {province_name.upper()} (Tối đa {max_pages} trang)")
     scraper = get_fresh_scraper()
@@ -85,7 +85,6 @@ def crawl_batdongsan_pro(location_url, province_name, max_pages=10):
                         pass
                 
                 break # Thành công thì thoát vòng lặp retry
-                
             except Exception:
                 pass
         
@@ -95,7 +94,7 @@ def crawl_batdongsan_pro(location_url, province_name, max_pages=10):
     return data_collected
 
 
-# HÀM XUẤT DATABASE SQLITE DUY NHẤT
+# --- HÀM XUẤT DATABASE SQLITE DUY NHẤT ---
 def export_to_sql_only(df, db_name="real_estate_danang_quangnam.db", table_name="bds_data"):
     """Lưu DataFrame trực tiếp vào file SQLite database."""
     try:
@@ -107,12 +106,12 @@ def export_to_sql_only(df, db_name="real_estate_danang_quangnam.db", table_name=
         print(f"  [!] Lỗi khi xuất ra SQL Database: {e}")
 
 
-# KHỐI LỆNH THỰC THI CHÍNH 
+# --- KHỐI LỆNH THỰC THI CHÍNH ---
 if __name__ == "__main__":
     url_dn = "https://batdongsan.com.vn/nha-dat-ban-da-nang"
     url_qn = "https://batdongsan.com.vn/nha-dat-ban-quang-nam"
     
-    SO_TRANG = 20
+    SO_TRANG = 15
     
     data_da_nang = crawl_batdongsan_pro(url_dn, "Đà Nẵng", max_pages=SO_TRANG)
     
@@ -125,7 +124,7 @@ if __name__ == "__main__":
     
     if all_data:
         # Lọc bỏ các dòng trùng lặp (nếu web đẩy tin lên nhiều lần)
-        df = pd.DataFrame(all_data).drop_duplicates()
+        df = pd.DataFrame(all_data).drop_duplicates(subset=['tinh_thanh', 'tieu_de', 'muc_gia', 'dien_tich', 'vi_tri', 'mo_ta', 'url'])
         
         print("\n" + "=" * 60)
         print("HOÀN THÀNH THU THẬP - CHỈ XUẤT FILE DB...")
