@@ -11,12 +11,24 @@ conn = sqlite3.connect("data/cleaned_data.db")
 df = pd.read_sql("SELECT * FROM cleaned_data", conn)
 conn.close()
 
-features = ["area_m2", "tinh_thanh"]
+df["quan_huyen"] = df["vi_tri"].astype(str).str.split("(").str[0].str.strip()
+
+features = ["area_m2", "tinh_thanh", "quan_huyen"]
 target = "price"
 
 df = df[features + [target]].dropna()
 
-df = pd.get_dummies(df, columns=["tinh_thanh"], drop_first=False)
+district_map = (
+    df.groupby("tinh_thanh")["quan_huyen"]
+    .apply(lambda x: sorted(x.dropna().unique().tolist()))
+    .to_dict()
+)
+
+print("===== AVAILABLE DISTRICTS BY PROVINCE =====")
+for province, districts in district_map.items():
+    print(province + ":", ", ".join(districts))
+
+df = pd.get_dummies(df, columns=["tinh_thanh", "quan_huyen"], drop_first=False)
 
 X = df.drop(columns=[target])
 y = df[target]
@@ -41,7 +53,9 @@ print("R2:", round(r2, 4))
 
 joblib.dump(model, "house_price_model.pkl")
 joblib.dump(X.columns.tolist(), "model_columns.pkl")
+joblib.dump(district_map, "district_map.pkl")
 
 print("Model saved as house_price_model.pkl")
 print("Columns saved as model_columns.pkl")
+print("District map saved as district_map.pkl")
 print("MODEL TRAINING COMPLETED")
